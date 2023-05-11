@@ -15,6 +15,7 @@ function onStart(e) {
     if (isActive) {
         return
     }
+switchColors()
 intervalID = setInterval((switchColors), 1000)
 isActive = true
     refs.start.disabled = true
