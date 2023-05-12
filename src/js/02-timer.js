@@ -1,4 +1,14 @@
 import flatpickr from "flatpickr";
+import Notiflix from 'notiflix'; 
+
+Notiflix.Notify.init({
+  width: '280px',
+  position: 'right-top',
+  distance: '10px',
+  opacity: 1,
+  clickToClose: true,
+});
+
 import "flatpickr/dist/flatpickr.min.css";
 
 const refs = {
@@ -11,26 +21,34 @@ const refs = {
   seconds: document.querySelector('span[data-seconds]'),
 }
 
-let intervalID = null
-let isActive = false
-
 const options = {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
+  now: Date.now(),
+
   onClose(selectedDates) {
-    console.log(selectedDates[0]);
+    console.log(selectedDates[0].getTime());
+      if (selectedDates[0].getTime() < this.now) {
+        refs.start.disabled = true
+        Notiflix.Notify.failure('Please choose a date in the future');
+      } else {
+        refs.start.disabled = false 
+    } 
   },
 };
 
+let intervalID = null
+let isActive = false
+let tick = null
+refs.start.disabled = true
 const fp = flatpickr("#datetime-picker", options)
-
 
 refs.start.addEventListener('click', timerStart)
 
-
 function timerStart() {
+
   let date = new Date(refs.input.value);
   
   if (isActive) {
@@ -40,21 +58,28 @@ function timerStart() {
   isActive = true
 
   intervalID = setInterval(() => {
-    let tick = null
     let currentTime = Date.now();
-    tick = date - currentTime
-    convertMs(tick)
-    console.log(`${days}:${hours}:${minutes}:${seconds}`);
 
+    refs.start.disabled = true
+    tick = date - currentTime
+    console.log(tick);
+    if (tick > 0) {
+      const convert = convertMs(tick)
+      console.log(`${pad(convert.days)} : ${pad(convert.hours)} : ${pad(convert.minutes)} : ${pad(convert.seconds)}`);
+
+      refs.days.textContent = pad(convert.days)
+      refs.hours.textContent = pad(convert.hours)
+      refs.minutes.textContent = pad(convert.minutes)
+      refs.seconds.textContent = pad(convert.seconds)
+    } else {
+      clearInterval(intervalID);
+      isActive = false
+    }
   }, 1000);
-  
+
 }
 
-
-
-addEventListener
-
-function convertMs(ms) {
+  function convertMs(ms) {
   // Number of milliseconds per unit of time
   const second = 1000;
   const minute = second * 60;
@@ -71,6 +96,10 @@ function convertMs(ms) {
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
   return { days, hours, minutes, seconds };
+}
+
+function pad(number) {
+return String(number).padStart(2, '0')
 }
 
 
