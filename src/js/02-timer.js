@@ -67,9 +67,9 @@ class Timer {
 
       refs.start.disabled = true
       this.tick = date - currentTime
-      console.log(this.tick);
       if (this.tick > 0) {
         const convert = this.convertMs(this.tick)
+        console.log(convert);
         this.onTick(convert);
       } else {
         Notiflix.Notify.info('Time is up');

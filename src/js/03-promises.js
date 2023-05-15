@@ -18,35 +18,45 @@ const refs = {
   submit: document.querySelector('button[type="submit"]'),
 }
 
-let intervalID = null
 let delayValue = 0
 let stepValue = 0
 let amount = 0
-let counter = 0
 refs.submit.disabled = false;
-let delaySum = delayValue
+let delaySum = 0
 
 refs.form.addEventListener('submit', onFormSubmit)
 
 function onFormSubmit(event) {
   event.preventDefault();
-  // refs.submit.disabled = true;
+  
+  refs.submit.disabled = true;
   delayValue = +refs.delay.value
   stepValue = +refs.step.value
   amount = +refs.amount.value
-
+  delaySum = delayValue
+  
 
   for (let i = 1; i <= amount; i += 1) {
+    
     
   createPromise(i, delaySum)
   .then(({ position, delay }) => {
     Notiflix.Notify.success(`Fulfilled promise ${position} in ${delay}ms`);
+    if (i === amount) {
+    refs.submit.disabled = false
+  }
   })
   .catch(({ position, delay }) => {
     Notiflix.Notify.failure(`Rejected promise ${position} in ${delay}ms`);
-  });
-        delaySum += stepValue;
+    if (i === amount) {
+    refs.submit.disabled = false
   }
+  
+  });
+    delaySum += stepValue;
+  }
+
+
 
 
 }
